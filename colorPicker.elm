@@ -9,7 +9,7 @@ type alias Model =
 
 model = Model ["rgb(255, 0, 0)", "rgb(0, 128, 0)", "rgb(0, 0, 255)"]
 
-option address color =
+optionView address color =
   div
     [onClick address color]
     [text color]
@@ -26,7 +26,7 @@ answerView color =
 view address answer guess =
   let
     answer' = answerView answer
-    option' = option address
+    option' = optionView address
     options' = div [] (List.map option' model.options)
     prompt = if guess == "" then "Pick a color!" else ""
     promptView = div [] [text prompt]
