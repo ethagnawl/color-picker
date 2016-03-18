@@ -1,13 +1,8 @@
+module ColorPicker where
+
 import Html exposing (text, div)
 import Html.Attributes exposing (style)
 import Html.Events exposing (..)
-
-type alias Model =
-  {
-    options : List String
-  }
-
-model = Model ["rgb(255, 0, 0)", "rgb(0, 128, 0)", "rgb(0, 0, 255)"]
 
 optionView address color =
   div
@@ -23,11 +18,11 @@ answerView color =
         ("width", "100px")]]
     []
 
-view address answer guess =
+view address options answer guess =
   let
     answer' = answerView answer
     option' = optionView address
-    options' = div [] (List.map option' model.options)
+    options' = div [] (List.map option' options)
     prompt = if guess == "" then "Pick a color!" else ""
     promptView = div [] [text prompt]
     rightOrWrong = if guess /= "" then
@@ -45,6 +40,8 @@ view address answer guess =
         rightOrWrongView
       ]
 
+port options : Signal (List String)
+
 guessInbox =
   Signal.mailbox ""
 
@@ -53,7 +50,7 @@ guess =
 
 answerInbox =
   let
-    default = Maybe.withDefault "rgba(0, 0, 0)" (List.head model.options)
+    default = "rgb(255, 0, 0)"
   in
     Signal.mailbox default
 
@@ -61,4 +58,4 @@ answer =
   answerInbox.signal
 
 main =
-  Signal.map2 (view guessInbox.address) answer guess
+  Signal.map3 (view guessInbox.address) options answer guess
