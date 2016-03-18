@@ -45,13 +45,20 @@ view address answer guess =
         rightOrWrongView
       ]
 
-inbox =
+guessInbox =
   Signal.mailbox ""
 
 guess =
-  inbox.signal
+  guessInbox.signal
 
-answer = Maybe.withDefault "rgba(0, 0, 0)" (List.head model.options)
+answerInbox =
+  let
+    default = Maybe.withDefault "rgba(0, 0, 0)" (List.head model.options)
+  in
+    Signal.mailbox default
+
+answer =
+  answerInbox.signal
 
 main =
-  Signal.map (view inbox.address answer) guess
+  Signal.map2 (view guessInbox.address) answer guess
