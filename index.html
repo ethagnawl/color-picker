@@ -9,14 +9,26 @@
     <div id="root"></div>
     <script src="colorPicker.js"></script>
     <script>
-      var div = document.getElementById('root');
-      var myApp = Elm.embed(Elm.ColorPicker, div, {
-          options: ["rgb(255, 0, 0)", "rgb(0, 128, 0)", "rgb(0, 0, 255)"]
-      });
-      setTimeout(function () {
-          var scores = ["rgb(255, 255, 0)", "rgb(255, 165, 0)", "rgb(165, 42, 42)"]
-          myApp.ports.options.send(scores)
-      }, 5000);
+    var min = 0;
+    var max = 255;
+    function randomNumber(max) {
+        return Math.floor(Math.random() * max);
+    }
+    var options = [0, 0, 0].map(function () {
+        var red = randomNumber(max);
+        var green = randomNumber(max);
+        var blue = randomNumber(max);
+        return "rgb(" + red + "," + green + "," + blue + ")";
+    });
+    var answer = options[randomNumber(3)];
+    var data = {
+        options: {
+            answer: answer,
+            options: options
+        }
+    };
+    var div = document.getElementById('root');
+    var myapp = Elm.embed(Elm.ColorPicker, div, data);
     </script>
   </body>
 </html>

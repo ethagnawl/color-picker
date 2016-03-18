@@ -18,15 +18,15 @@ answerView color =
         ("width", "100px")]]
     []
 
-view address options answer guess =
+view address options guess =
   let
-    answer' = answerView answer
+    answer' = answerView options.answer
     option' = optionView address
-    options' = div [] (List.map option' options)
+    options' = div [] (List.map option' options.options)
     prompt = if guess == "" then "Pick a color!" else ""
     promptView = div [] [text prompt]
     rightOrWrong = if guess /= "" then
-                     if guess == answer then "Right!" else "Wrong!"
+                     if guess == options.answer then "Right!" else "Wrong!"
                    else
                      ""
     rightOrWrongView = div [] [text rightOrWrong]
@@ -40,7 +40,12 @@ view address options answer guess =
         rightOrWrongView
       ]
 
-port options : Signal (List String)
+type alias GameObject = {
+  answer : String,
+  options : List String
+}
+
+port options : Signal GameObject
 
 guessInbox =
   Signal.mailbox ""
@@ -48,14 +53,5 @@ guessInbox =
 guess =
   guessInbox.signal
 
-answerInbox =
-  let
-    default = "rgb(255, 0, 0)"
-  in
-    Signal.mailbox default
-
-answer =
-  answerInbox.signal
-
 main =
-  Signal.map3 (view guessInbox.address) options answer guess
+  Signal.map2 (view guessInbox.address) options guess
