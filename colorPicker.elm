@@ -2,9 +2,12 @@ import Html exposing (text, div)
 import Html.Attributes exposing (style)
 import Html.Events exposing (..)
 
-options = ["rgb(255, 0, 0)",
-           "rgb(0, 128, 0)",
-           "rgb(0, 0, 255)"]
+type alias Model =
+  {
+    options : List String
+  }
+
+model = Model ["rgb(255, 0, 0)", "rgb(0, 128, 0)", "rgb(0, 0, 255)"]
 
 option address color =
   div
@@ -24,7 +27,7 @@ view address answer guess =
   let
     answer' = answerView answer
     option' = option address
-    options' = div [] (List.map option' options)
+    options' = div [] (List.map option' model.options)
     prompt = if guess == "" then "Pick a color!" else ""
     rightOrWrong = if guess /= "" then
                      if guess == answer then "Right!" else "Wrong!"
@@ -46,7 +49,7 @@ inbox =
 guess =
   inbox.signal
 
-answer = "rgb(255, 0, 0)"
+answer = Maybe.withDefault "rgba(0, 0, 0)" (List.head model.options)
 
 main =
   Signal.map (view inbox.address answer) guess
