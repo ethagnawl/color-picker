@@ -29,18 +29,20 @@ view address answer guess =
     option' = option address
     options' = div [] (List.map option' model.options)
     prompt = if guess == "" then "Pick a color!" else ""
+    promptView = div [] [text prompt]
     rightOrWrong = if guess /= "" then
                      if guess == answer then "Right!" else "Wrong!"
                    else
                      ""
+    rightOrWrongView = div [] [text rightOrWrong]
   in
     div
       []
       [
         answer',
         options',
-        div [] [text prompt],
-        div [] [text rightOrWrong]
+        promptView,
+        rightOrWrongView
       ]
 
 inbox =
