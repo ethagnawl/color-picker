@@ -3,10 +3,11 @@ module ColorPicker where
 import Html exposing (text, div)
 import Html.Attributes exposing (style)
 import Html.Events exposing (..)
+import Maybe exposing (Maybe(Just, Nothing))
 
 optionView address color =
   div
-    [onClick address color]
+    [onClick address (Just color)]
     [text color]
 
 answerView color =
@@ -23,10 +24,14 @@ view address options guess =
     answer' = answerView options.answer
     option' = optionView address
     options' = div [] (List.map option' options.options)
-    prompt = if guess == "" then "Pick a color!" else ""
+    hasGuess = case guess of
+                 Just _ -> True
+                 Nothing -> False
+    guess' = Maybe.withDefault "" guess
+    prompt = if hasGuess then "" else "Pick a color!"
     promptView = div [] [text prompt]
-    rightOrWrong = if guess /= "" then
-                     if guess == options.answer then "Right!" else "Wrong!"
+    rightOrWrong = if hasGuess then
+                     if guess' == options.answer then "Right!" else "Wrong!"
                    else
                      ""
     rightOrWrongView = div [] [text rightOrWrong]
@@ -48,7 +53,7 @@ type alias GameObject = {
 port options : Signal GameObject
 
 guessInbox =
-  Signal.mailbox ""
+  Signal.mailbox Nothing
 
 guess =
   guessInbox.signal
