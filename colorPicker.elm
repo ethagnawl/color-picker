@@ -1,13 +1,18 @@
 module ColorPicker where
 
-import Html exposing (text, div)
+import Debug
+import Effects exposing (Effects, Never)
 import Html.Attributes exposing (style)
 import Html.Events exposing (..)
+import Html exposing (Html, text, div)
 import Maybe exposing (Maybe(Just, Nothing))
+import Signal exposing (Address, Signal, Mailbox, mailbox, send)
+import StartApp
+import Task
 
 optionView address color =
   div
-    [onClick address (Just color)]
+    [onClick address <| GuessMade color]
     [text color]
 
 answerView color =
@@ -19,19 +24,14 @@ answerView color =
         ("width", "100px")]]
     []
 
-view address options guess =
+view address model =
   let
-    answer' = answerView options.answer
-    option' = optionView address
-    options' = div [] (List.map option' options.options)
-    hasGuess = case guess of
-                 Just _ -> True
-                 Nothing -> False
-    guess' = Maybe.withDefault "" guess
-    prompt = if hasGuess then "" else "Pick a color!"
+    answer' = answerView model.answer
+    options' = div [] (List.map (optionView address) model.options)
+    prompt = if model.guess /= "" then "" else "Pick a color!"
     promptView = div [] [text prompt]
-    rightOrWrong = if hasGuess then
-                     if guess' == options.answer then "Right!" else "Wrong!"
+    rightOrWrong = if  model.guess /= "" then
+                     if model.guess == model.answer then "Right!" else "Wrong!"
                    else
                      ""
     rightOrWrongView = div [] [text rightOrWrong]
@@ -47,16 +47,55 @@ view address options guess =
 
 type alias GameObject = {
   answer : String,
-  options : List String
+  options : List String,
+  guess : String
 }
+
+init = GameObject "rgb(0, 0, 0)" ["rgb(0, 0, 0)"] ""
+
+type Action =
+    GameObjectChanged
+  | GameObjectReceived GameObject
+  | GuessMade String
+  | Noop
+
+update action model =
+  case action of
+
+    GuessMade newGuess ->
+      (
+        { model | guess = newGuess }
+        , Effects.none
+      )
+
+    GameObjectReceived newGameObject ->
+      (
+        { model | answer = newGameObject.answer,
+                  options = newGameObject.options }
+        , Effects.none
+      )
+
+    -- request new colors via outgoing port
+    GameObjectChanged ->
+      Debug.crash "GameObjectChanged"
+      ( model, Effects.none )
+
+    Noop ->
+      Debug.crash "Noop"
+      ( model, Effects.none )
 
 port options : Signal GameObject
 
-guessInbox =
-  Signal.mailbox Nothing
+incomingGameObject : Signal Action
+incomingGameObject =
+  Signal.map GameObjectReceived options
 
-guess =
-  guessInbox.signal
+app =
+  StartApp.start {
+    init = (init, Effects.none),
+    view = view,
+    update = update,
+    inputs = [incomingGameObject]
+  }
 
-main =
-  Signal.map2 (view guessInbox.address) options guess
+main = app.html

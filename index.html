@@ -24,11 +24,13 @@
     var data = {
         options: {
             answer: answer,
+            guess: "",
             options: options
         }
     };
     var div = document.getElementById('root');
     var myapp = Elm.embed(Elm.ColorPicker, div, data);
+    myapp.ports.options.send(data.options);
     </script>
   </body>
 </html>
