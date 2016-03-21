@@ -48,6 +48,7 @@ view address model =
         promptView,
         rightOrWrongView,
         scoreView
+        , div [] [text ("debug: " ++ model.answer)]
       ]
 
 type alias GameObject = {
