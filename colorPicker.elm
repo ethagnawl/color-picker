@@ -61,8 +61,7 @@ type alias GameObject = {
 init = GameObject "rgb(0, 0, 0)" ["rgb(0, 0, 0)"] "" 0
 
 type Action =
-    GameObjectChanged
-  | GameObjectReceived GameObject
+    GameObjectReceived GameObject
   | GuessMade String
   | Noop
 
@@ -89,11 +88,6 @@ update action model =
                   score = model.score }
         , Effects.none
       )
-
-    -- request new colors via outgoing port
-    GameObjectChanged ->
-      Debug.crash "GameObjectChanged"
-      ( model, Effects.none )
 
     Noop ->
       Debug.crash "Noop"
