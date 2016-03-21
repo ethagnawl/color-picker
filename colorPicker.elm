@@ -11,9 +11,12 @@ import StartApp
 import Task
 
 optionView address color =
-  div
-    [onClick address <| GuessMade color]
-    [text color]
+  let
+    guess = GuessMade color
+  in
+    div
+      [onClick address guess]
+      [text color]
 
 answerView color =
   div
