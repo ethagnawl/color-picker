@@ -9,29 +9,38 @@
     <div id="root"></div>
     <script src="colorPicker.js"></script>
     <script>
-    var min = 0;
-    var max = 255;
-    function randomNumber(max) {
-        return Math.floor(Math.random() * max);
-    }
-    var options = [0, 0, 0].map(function () {
-        var red = randomNumber(max);
-        var green = randomNumber(max);
-        var blue = randomNumber(max);
-        return "rgb(" + red + ", " + green + ", " + blue + ")";
-    });
-    var answer = options[randomNumber(3)];
-    var data = {
-        options: {
-            answer: answer,
-            guess: "",
-            options: options,
-            score: 99999
+    function generateGameObject() {
+
+        var min = 0;
+        var max = 255;
+        function randomNumber(max) {
+            return Math.floor(Math.random() * max);
         }
-    };
+        var options = [0, 0, 0].map(function () {
+            var red = randomNumber(max);
+            var green = randomNumber(max);
+            var blue = randomNumber(max);
+            return "rgb(" + red + ", " + green + ", " + blue + ")";
+        });
+        var answer = options[randomNumber(3)];
+        var data = {
+            options: {
+                answer: answer,
+                guess: "",
+                options: options,
+                score: 99999
+            }
+        };
+
+        return data;
+
+    }
     var div = document.getElementById('root');
-    var myapp = Elm.embed(Elm.ColorPicker, div, data);
-    myapp.ports.options.send(data.options);
+    var myapp = Elm.embed(Elm.ColorPicker, div, generateGameObject());
+    myapp.ports.options.send(generateGameObject().options);
+    myapp.ports.requestNewGameObject.subscribe(function () {
+        myapp.ports.options.send(generateGameObject().options);
+    });
     </script>
   </body>
 </html>

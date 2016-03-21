@@ -78,20 +78,34 @@ update action model =
         (
           { model | guess = newGuess,
                     score = score }
-          , Effects.none
+          , sendNewGameObjectRequest
         )
 
     GameObjectReceived newGameObject ->
       (
         { model | answer = newGameObject.answer,
+                  guess = "",
                   options = newGameObject.options,
                   score = model.score }
         , Effects.none
       )
 
     Noop ->
-      Debug.crash "Noop"
       ( model, Effects.none )
+
+portRequestNewGameObject : Mailbox String
+portRequestNewGameObject =
+  mailbox ""
+
+port requestNewGameObject : Signal String
+port requestNewGameObject =
+  portRequestNewGameObject.signal
+
+sendNewGameObjectRequest : Effects Action
+sendNewGameObjectRequest =
+  send portRequestNewGameObject.address ""
+    |> Effects.task
+    |> Effects.map (\_ -> Noop)
 
 port options : Signal GameObject
 
@@ -106,5 +120,9 @@ app =
     update = update,
     inputs = [incomingGameObject]
   }
+
+port tasks : Signal (Task.Task Never ())
+port tasks =
+  app.tasks
 
 main = app.html
