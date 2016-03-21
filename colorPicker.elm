@@ -74,12 +74,10 @@ update action model =
                    if newGuess == model.guess then model.score else (model.score + 5)
                 else
                   if model.score - 5 < 0 then 0 else model.score - 5
+        model = { model | guess = newGuess,
+                          score = score }
       in
-        (
-          { model | guess = newGuess,
-                    score = score }
-          , sendNewGameObjectRequest
-        )
+        (model, sendNewGameObjectRequest model)
 
     GameObjectReceived newGameObject ->
       (
@@ -93,17 +91,16 @@ update action model =
     Noop ->
       ( model, Effects.none )
 
-portRequestNewGameObject : Mailbox String
+portRequestNewGameObject : Mailbox GameObject
 portRequestNewGameObject =
-  mailbox ""
+  mailbox init
 
-port requestNewGameObject : Signal String
+port requestNewGameObject : Signal GameObject
 port requestNewGameObject =
   portRequestNewGameObject.signal
 
-sendNewGameObjectRequest : Effects Action
-sendNewGameObjectRequest =
-  send portRequestNewGameObject.address ""
+sendNewGameObjectRequest model =
+  send portRequestNewGameObject.address model
     |> Effects.task
     |> Effects.map (\_ -> Noop)
 

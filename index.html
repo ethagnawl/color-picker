@@ -39,6 +39,7 @@
     var myapp = Elm.embed(Elm.ColorPicker, div, generateGameObject());
     myapp.ports.options.send(generateGameObject().options);
     myapp.ports.requestNewGameObject.subscribe(function () {
+        console.log(arguments)
         myapp.ports.options.send(generateGameObject().options);
     });
     </script>
