@@ -35,6 +35,7 @@ view address model =
                    else
                      ""
     rightOrWrongView = div [] [text rightOrWrong]
+    scoreView = div [] [text (toString model.score)]
   in
     div
       []
@@ -42,16 +43,18 @@ view address model =
         answer',
         options',
         promptView,
-        rightOrWrongView
+        rightOrWrongView,
+        scoreView
       ]
 
 type alias GameObject = {
   answer : String,
   options : List String,
-  guess : String
+  guess : String,
+  score : Int
 }
 
-init = GameObject "rgb(0, 0, 0)" ["rgb(0, 0, 0)"] ""
+init = GameObject "rgb(0, 0, 0)" ["rgb(0, 0, 0)"] "" 0
 
 type Action =
     GameObjectChanged
@@ -63,15 +66,23 @@ update action model =
   case action of
 
     GuessMade newGuess ->
-      (
-        { model | guess = newGuess }
-        , Effects.none
-      )
+      let
+        score = if newGuess == model.answer then
+                   if newGuess == model.guess then model.score else (model.score + 5)
+                else
+                  if model.score - 5 < 0 then 0 else model.score - 5
+      in
+        (
+          { model | guess = newGuess,
+                    score = score }
+          , Effects.none
+        )
 
     GameObjectReceived newGameObject ->
       (
         { model | answer = newGameObject.answer,
-                  options = newGameObject.options }
+                  options = newGameObject.options,
+                  score = model.score }
         , Effects.none
       )
 
