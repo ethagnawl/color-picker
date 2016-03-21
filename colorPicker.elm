@@ -38,7 +38,7 @@ view address model =
                    else
                      ""
     rightOrWrongView = div [] [text rightOrWrong]
-    scoreView = div [] [text (toString model.score)]
+    scoreView = div [] [text ("score: " ++ (toString model.score))]
   in
     div
       []
