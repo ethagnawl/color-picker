@@ -2,9 +2,9 @@ module ColorPicker where
 
 import Debug
 import Effects exposing (Effects, Never)
-import Html.Attributes exposing (style)
+import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import Html exposing (Html, text, div)
+import Html exposing (Html, text, div, input, button)
 import Maybe exposing (Maybe(Just, Nothing))
 import Signal exposing (Address, Signal, Mailbox, mailbox, send)
 import StartApp
@@ -12,10 +12,10 @@ import Task
 
 optionView address color =
   let
-    guess = GuessMade color
+    guessCallback = GuessMade color
   in
     div
-      [onClick address guess]
+      [onClick address guessCallback]
       [text color]
 
 answerView color =
@@ -29,6 +29,21 @@ answerView color =
 
 view address model =
   let
+    initialsCallback initials = Signal.message address (InitialsAdded initials)
+    initialsView = div
+      []
+      [
+        input
+          [
+            placeholder "Enter your initials",
+            value model.initials,
+            on "input" targetValue initialsCallback
+          ]
+          [],
+        button
+          [onClick address <| InitialsSaved True]
+          [text "Play!"]
+      ]
     answer' = answerView model.answer
     options' = div [] (List.map (optionView address) model.options)
     prompt = if model.guess /= "" then "" else "Pick a color!"
@@ -38,31 +53,39 @@ view address model =
                    else
                      ""
     rightOrWrongView = div [] [text rightOrWrong]
-    scoreView = div [] [text ("score: " ++ (toString model.score))]
+    scoreView = div [] [text ("player: " ++ model.initials ++ ", score: " ++ (toString model.score))]
+    debugView = div [] [text ("debug: " ++ model.answer)]
   in
-    div
-      []
-      [
-        answer',
-        options',
-        promptView,
-        rightOrWrongView,
-        scoreView
-        , div [] [text ("debug: " ++ model.answer)]
-      ]
+    if model.initialsSaved == False then
+      div [] [initialsView]
+    else
+      div
+        []
+        [
+          answer',
+          options',
+          promptView,
+          rightOrWrongView,
+          scoreView
+          , debugView
+        ]
 
 type alias GameObject = {
+  initials : String,
+  initialsSaved : Bool,
   answer : String,
   options : List String,
   guess : String,
   score : Int
 }
 
-init = GameObject "rgb(0, 0, 0)" ["rgb(0, 0, 0)"] "" 0
+init = GameObject "" False "rgb(0, 0, 0)" ["rgb(0, 0, 0)"] "" 0
 
 type Action =
     GameObjectReceived GameObject
   | GuessMade String
+  | InitialsAdded String
+  | InitialsSaved Bool
   | Noop
 
 update action model =
@@ -85,6 +108,18 @@ update action model =
                   guess = "",
                   options = newGameObject.options,
                   score = model.score }
+        , Effects.none
+      )
+
+    InitialsAdded newInitials ->
+      (
+        { model | initials = newInitials }
+        , Effects.none
+      )
+
+    InitialsSaved _ ->
+      (
+        { model | initialsSaved = True }
         , Effects.none
       )
 
