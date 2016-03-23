@@ -102,6 +102,10 @@ type Action =
   | InitialsSaved Bool
   | Noop
 
+noFx : model -> (model, Effects a)
+noFx model =
+  (model, Effects.none)
+
 update action model =
   case action of
 
@@ -117,28 +121,19 @@ update action model =
         (model, sendNewGameObjectRequest model)
 
     GameObjectReceived newGameObject ->
-      (
-        { model | answer = newGameObject.answer,
-                  guess = "",
-                  options = newGameObject.options,
-                  score = model.score }
-        , Effects.none
-      )
+      noFx { model | answer = newGameObject.answer,
+                     guess = "",
+                     options = newGameObject.options,
+                     score = model.score }
 
     InitialsAdded newInitials ->
-      (
-        { model | initials = newInitials }
-        , Effects.none
-      )
+      noFx { model | initials = newInitials }
 
     InitialsSaved _ ->
-      (
-        { model | initialsSaved = True }
-        , Effects.none
-      )
+      noFx { model | initialsSaved = True }
 
     Noop ->
-      ( model, Effects.none )
+      noFx model
 
 portRequestNewGameObject : Mailbox GameObject
 portRequestNewGameObject =
