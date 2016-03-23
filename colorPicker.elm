@@ -15,7 +15,16 @@ optionView address color =
     guessCallback = GuessMade color
   in
     div
-      [onClick address guessCallback]
+      [
+        class "option",
+        onClick address guessCallback,
+        style [
+          ("border", "1px solid black"),
+          ("display", "inline-block"),
+          ("padding", "12px"),
+          ("width", "33%")
+        ]
+      ]
       [text color]
 
 answerView color =
@@ -23,8 +32,13 @@ answerView color =
     [style
       [
         ("background-color", color),
-        ("height", "100px"),
-        ("width", "100px")]]
+        ("bottom", "0"),
+        ("left", "0"),
+        ("position", "fixed"),
+        ("right", "0"),
+        ("top", "0"),
+        ("z-index", "-1")
+        ]]
     []
 
 view address model =
@@ -45,9 +59,9 @@ view address model =
           [text "Play!"]
       ]
     answer' = answerView model.answer
-    options' = div [] (List.map (optionView address) model.options)
+    options' = div [class "options"] (List.map (optionView address) model.options)
     prompt = if model.guess /= "" then "" else "Pick a color!"
-    promptView = div [] [text prompt]
+    promptView = div [class "prompt"] [text prompt]
     rightOrWrong = if  model.guess /= "" then
                      if model.guess == model.answer then "Right!" else "Wrong!"
                    else
@@ -63,8 +77,8 @@ view address model =
         []
         [
           answer',
-          options',
           promptView,
+          options',
           rightOrWrongView,
           scoreView
           , debugView
