@@ -49,6 +49,7 @@ view address model =
       [
         input
           [
+            autofocus True,
             placeholder "Enter your initials",
             value model.initials,
             on "input" targetValue initialsCallback
