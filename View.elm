@@ -1,31 +1,28 @@
-module View (view, Context) where
+module View where
 
 import Debug
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html exposing (Html, text, div, input, button)
+import Action
 import Signal
 
-type alias Context =
-  {
-    initialsAdded : Signal.Address String
-  , initialsSaved : Signal.Address Bool
-  , guessMade : Signal.Address String
-  }
-
 optionView address color =
-  div
-    [
-      class "option"
-    , onClick address.guessMade color
-    , style [
-        ("border", "1px solid black"),
-        ("display", "inline-block"),
-        ("padding", "12px"),
-        ("width", "33%")
+  let
+    guessCallback = Action.GuessMade color
+  in
+    div
+      [
+        class "option"
+      , onClick address guessCallback
+      , style [
+          ("border", "1px solid black"),
+          ("display", "inline-block"),
+          ("padding", "12px"),
+          ("width", "33%")
+        ]
       ]
-    ]
-    [text color]
+      [text color]
 
 answerView color =
   div
@@ -42,26 +39,26 @@ answerView color =
     ]
     []
 
-view context model =
+view address model =
   let
-    initialsCallback initials = Signal.message context.initialsAdded initials
+    initialsCallback initials = Signal.message address (Action.InitialsAdded initials)
     initialsView = div
       []
       [
         input
           [
-            autofocus True,
-            placeholder "Enter your initials",
-            value model.initials,
-            on "input" targetValue initialsCallback
+              autofocus True
+            , placeholder "Enter your initials"
+            , value model.initials
+            , on "input" targetValue initialsCallback
           ]
           [],
         button
-          [onClick context.initialsSaved True]
+          [onClick address <| Action.InitialsSaved True]
           [text "Play!"]
       ]
     answer' = answerView model.answer
-    options' = div [class "options"] (List.map (optionView context) model.options)
+    options' = div [class "options"] (List.map (optionView address) model.options)
     prompt = if model.guess /= "" then "" else "Pick a color!"
     promptView = div [class "prompt"] [text prompt]
     rightOrWrong = if  model.guess /= "" then
@@ -78,10 +75,10 @@ view context model =
       div
         []
         [
-          answer',
-          promptView,
-          options',
-          rightOrWrongView,
-          scoreView
+            answer'
+          , promptView
+          , options'
+          , rightOrWrongView
+          , scoreView
           , debugView
         ]
