@@ -21,13 +21,14 @@ update portRequestNewGameObject action model =
       case maybeNewGuess of
         Just newGuess ->
           let
+            scoreStep = 5
             score = if newGuess == model.answer then
-                      (+) model.score 5
+                      (+) model.score scoreStep
                     else
-                      if model.score < 5 then
+                      if model.score < scoreStep then
                         0
                       else
-                        (-) model.score 5
+                        (-) model.score scoreStep
             model = { model | guess = Just newGuess,
                               score = score }
           in
