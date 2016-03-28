@@ -9,7 +9,7 @@ import Signal
 
 optionView address color =
   let
-    guessCallback = Action.GuessMade color
+    guessCallback = Action.GuessMade (Just color)
   in
     div
       [
@@ -57,12 +57,13 @@ view address model =
           [onClick address <| Action.InitialsSaved True]
           [text "Play!"]
       ]
+    guess' = Maybe.withDefault "" model.guess
     answer' = answerView model.answer
     options' = div [class "options"] (List.map (optionView address) model.options)
-    prompt = if model.guess /= "" then "" else "Pick a color!"
+    prompt = if guess' /= "" then "" else "Pick a color!"
     promptView = div [class "prompt"] [text prompt]
-    rightOrWrong = if  model.guess /= "" then
-                     if model.guess == model.answer then "Right!" else "Wrong!"
+    rightOrWrong = if  guess' /= "" then
+                     if guess' == model.answer then "Right!" else "Wrong!"
                    else
                      ""
     rightOrWrongView = div [] [text rightOrWrong]

@@ -6,7 +6,7 @@ import Signal
 
 type Action =
     GameObjectReceived Model.GameObject
-  | GuessMade String
+  | GuessMade (Maybe String)
   | InitialsAdded String
   | InitialsSaved Bool
   | Noop
@@ -17,23 +17,31 @@ noFx model =
 update portRequestNewGameObject action model =
   case action of
 
-    GuessMade newGuess ->
-      let
-        score = if newGuess == model.answer then
-                   if newGuess == model.guess then model.score else (model.score + 5)
-                else
-                  if model.score - 5 < 0 then 0 else model.score - 5
-        model = { model | guess = newGuess,
-                          score = score }
-      in
-        (model,
-         Signal.send portRequestNewGameObject.address model
-           |> Effects.task
-           |> Effects.map (\_ -> Noop))
+    GuessMade maybeNewGuess ->
+      case maybeNewGuess of
+        Just newGuess ->
+          let
+            score = if newGuess == model.answer then
+                      (+) model.score 5
+                    else
+                      if model.score < 5 then
+                        0
+                      else
+                        (-) model.score 5
+            model = { model | guess = Just newGuess,
+                              score = score }
+          in
+            (model,
+              Signal.send portRequestNewGameObject.address model
+                |> Effects.task
+                |> Effects.map (\_ -> Noop))
+        Nothing ->
+          Debug.crash "This should never happen during a real game."
+          (model, Effects.none)
 
     GameObjectReceived newGameObject ->
       noFx { model | answer = newGameObject.answer,
-                     guess = "",
+                     guess = Nothing,
                      options = newGameObject.options,
                      score = model.score }
 
