@@ -1,11 +1,32 @@
 module View where
 
+import Action
 import Debug
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html exposing (Html, text, div, input, button)
-import Action
 import Signal
+
+initialsView address model =
+  let
+    inputCallback initials = Signal.message address (Action.InitialsAdded initials)
+    clickCallback = Action.InitialsSaved True
+  in
+    div
+      []
+      [
+        input
+          [
+            autofocus True
+          , placeholder "Enter your initials"
+          , value model.initials
+          , on "input" targetValue inputCallback
+          ]
+          [],
+        button
+          [onClick address clickCallback]
+          [text "Play!"]
+      ]
 
 optionView address color =
   let
@@ -24,6 +45,11 @@ optionView address color =
       ]
       [text color]
 
+optionsView address model =
+  div
+    [class "options"]
+    (List.map (optionView address) model.options)
+
 answerView color =
   div
     [style
@@ -39,47 +65,43 @@ answerView color =
     ]
     []
 
+scoreView model =
+  let
+    initials = model.initials
+    score = toString model.score
+  in
+    div
+      []
+      [text ("player: " ++ initials ++ ", score: " ++ score)]
+
+promptView model =
+  let
+    prompt = case model.guess of
+               Just _ -> ""
+               Nothing -> "Pick a color!"
+  in
+    div
+      [class "prompt"]
+      [text prompt]
+
 view address model =
   let
-    initialsCallback initials = Signal.message address (Action.InitialsAdded initials)
-    initialsView = div
-      []
-      [
-        input
-          [
-              autofocus True
-            , placeholder "Enter your initials"
-            , value model.initials
-            , on "input" targetValue initialsCallback
-          ]
-          [],
-        button
-          [onClick address <| Action.InitialsSaved True]
-          [text "Play!"]
-      ]
-    guess' = Maybe.withDefault "" model.guess
+    initialsView' = initialsView address model
     answer' = answerView model.answer
-    options' = div [class "options"] (List.map (optionView address) model.options)
-    prompt = if guess' /= "" then "" else "Pick a color!"
-    promptView = div [class "prompt"] [text prompt]
-    rightOrWrong = if  guess' /= "" then
-                     if guess' == model.answer then "Right!" else "Wrong!"
-                   else
-                     ""
-    rightOrWrongView = div [] [text rightOrWrong]
-    scoreView = div [] [text ("player: " ++ model.initials ++ ", score: " ++ (toString model.score))]
+    promptView' = promptView model
+    optionsView' = optionsView address model
+    scoreView' = scoreView model
     debugView = div [] [text ("debug: " ++ model.answer)]
   in
     if model.initialsSaved == False then
-      div [] [initialsView]
+      initialsView'
     else
       div
         []
         [
-            answer'
-          , promptView
-          , options'
-          , rightOrWrongView
-          , scoreView
-          , debugView
+          answer'
+        , promptView'
+        , optionsView'
+        , scoreView'
+        , debugView
         ]
