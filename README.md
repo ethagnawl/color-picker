@@ -1,4 +1,5 @@
 #TODO
+- prevent guess from ever being ""
 - listen for enter keypress from initials input
 - use extensible record for GameObject - placeholder values are
   currently sent in on the incomingGameObject port
