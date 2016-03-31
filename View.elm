@@ -5,7 +5,21 @@ import Debug
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html exposing (Html, text, div, input, button)
+import Json.Decode as Json
 import Signal
+
+is13 code =
+  if code == 13 then Ok () else Err "Not '13'."
+
+-- stolen from: https://github.com/evancz/elm-todomvc/blob/master/Todo.elm
+onEnter address value =
+    {- alias for the following:
+      on "keydown"
+        (Json.customDecoder keyCode is13)
+        (\_ -> Signal.message address (Action.InitialsSaved True))
+    -}
+    on "keydown"
+      (Json.customDecoder keyCode is13) (\_ -> Signal.message address value)
 
 initialsView address model =
   let
@@ -21,6 +35,8 @@ initialsView address model =
           , placeholder "Enter your initials"
           , value model.initials
           , on "input" targetValue inputCallback
+          , onEnter address (Action.InitialsSaved True)
+
           ]
           [],
         button
