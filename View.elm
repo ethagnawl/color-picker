@@ -53,13 +53,14 @@ optionView address color =
         class "option"
       , onClick address guessCallback
       , style [
+          ("background-color", color),
           ("border", "1px solid black"),
           ("display", "inline-block"),
           ("padding", "12px"),
           ("width", "33%")
         ]
       ]
-      [text color]
+      []
 
 optionsView address model =
   div
@@ -67,19 +68,14 @@ optionsView address model =
     (List.map (optionView address) model.options)
 
 answerView color =
-  div
-    [style
+  let
+      text' = "The code is: " ++ color
+  in
+    div
       [
-        ("background-color", color),
-        ("bottom", "0"),
-        ("left", "0"),
-        ("position", "fixed"),
-        ("right", "0"),
-        ("top", "0"),
-        ("z-index", "-1")
+        class "answer"
       ]
-    ]
-    []
+      [text text']
 
 scoreView model =
   let
@@ -94,7 +90,7 @@ promptView model =
   let
     prompt = case model.guess of
                Just _ -> ""
-               Nothing -> "Pick a color!"
+               Nothing -> "Choose the corresponding color below!"
   in
     div
       [class "prompt"]
@@ -107,7 +103,9 @@ view address model =
     promptView' = promptView model
     optionsView' = optionsView address model
     scoreView' = scoreView model
-    debugView = div [] [text ("debug: " ++ model.answer)]
+    debugView = div
+                  [style [("background-color", model.answer)]]
+                  [text ("debug: " ++ model.answer)]
   in
     if model.initialsSaved == False then
       initialsView'
