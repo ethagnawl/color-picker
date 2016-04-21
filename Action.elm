@@ -30,6 +30,7 @@ update portRequestNewGameObject action model =
                       else
                         (-) model.score scoreStep
             model = { model | guess = Just newGuess,
+                              rounds = model.rounds + 1,
                               score = score }
           in
             (model,

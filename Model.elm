@@ -6,7 +6,17 @@ type alias GameObject = {
   answer : String,
   options : List String,
   guess : Maybe String,
-  score : Int
+  score : Int,
+  rounds: Int
 }
 
-initialGameObject = GameObject "" False "rgb(0, 0, 0)" ["rgb(0, 0, 0)"] Nothing 0
+initialGameObject : GameObject
+initialGameObject = {
+    initials = "",
+    initialsSaved = False,
+    answer = "rgb(0, 0, 0)",
+    options = ["rgb(0, 0, 0)"],
+    guess = Nothing,
+    score = 0,
+    rounds = 0
+  }
