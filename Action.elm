@@ -1,14 +1,17 @@
 module Action (Action(..), update) where
 
+import Debug
 import Effects exposing (Effects, Never)
 import Model
 import Signal
+import Task
 
 type Action =
     GameObjectReceived Model.GameObject
   | GuessMade (Maybe String)
   | InitialsAdded String
   | InitialsSaved Bool
+  | GameOver Model.GameObject
   | Noop
 
 noFx model =
@@ -16,6 +19,13 @@ noFx model =
 
 update portRequestNewGameObject action model =
   case action of
+
+    GameOver oldModel ->
+      let
+        -- TODO: figure out a way to incorporate a FSM to handle game state
+        gameOver = (model.initialsSaved && model.rounds == oldModel.rounds)
+      in
+        noFx { model | gameOver = gameOver }
 
     GuessMade maybeNewGuess ->
       case maybeNewGuess of
@@ -42,10 +52,15 @@ update portRequestNewGameObject action model =
           (model, Effects.none)
 
     GameObjectReceived newGameObject ->
-      noFx { model | answer = newGameObject.answer,
-                     guess = Nothing,
-                     options = newGameObject.options,
-                     score = model.score }
+      let
+          model = {   model | answer = newGameObject.answer,
+                      guess = Nothing,
+                      options = newGameObject.options,
+                      gameOver = False,
+                      score = model.score }
+      in
+        (model,
+         Task.sleep 10000 |> Effects.task |> Effects.map (always <| GameOver model))
 
     InitialsAdded newInitials ->
       noFx { model | initials = newInitials }

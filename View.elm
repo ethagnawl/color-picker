@@ -96,6 +96,11 @@ promptView model =
       [class "prompt"]
       [text prompt]
 
+gameOverView model =
+  div
+    [class "game-over"]
+    [text "GAME OVER"]
+
 view address model =
   let
     initialsView' = initialsView address model
@@ -103,12 +108,15 @@ view address model =
     promptView' = promptView model
     optionsView' = optionsView address model
     scoreView' = scoreView model
+    gameOverView' = gameOverView model
     debugView = div
                   [style [("background-color", model.answer)]]
                   [text ("debug: " ++ model.answer)]
   in
     if model.initialsSaved == False then
       initialsView'
+    else if model.gameOver == True then
+      gameOverView'
     else
       div
         []
