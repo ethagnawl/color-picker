@@ -53,6 +53,9 @@ update portRequestNewGameObject action model =
 
     GameObjectReceived newGameObject ->
       let
+          -- Inspired by Sidekiq's incremental retry algo:
+          -- https://github.com/mperham/sidekiq/blob/35a7962093040784b48498e012bdff380ef991a8/lib/sidekiq/middleware/server/retry_jobs.rb#L178
+          sleep = 10000 - (1 ^ 4) + (222 * -(model.rounds))
           model = {   model | answer = newGameObject.answer,
                       guess = Nothing,
                       options = newGameObject.options,
@@ -60,7 +63,9 @@ update portRequestNewGameObject action model =
                       score = model.score }
       in
         (model,
-         Task.sleep 10000 |> Effects.task |> Effects.map (always <| GameOver model))
+         Task.sleep sleep
+           |> Effects.task
+           |> Effects.map (always <| GameOver model))
 
     InitialsAdded newInitials ->
       noFx { model | initials = newInitials }
