@@ -8,6 +8,8 @@ import Html exposing (Html, text, div, input, button)
 import Json.Decode as Json
 import Signal
 
+(=>) = (,)
+
 is13 code =
   if code == 13 then Ok () else Err "Not '13'."
 
@@ -53,11 +55,11 @@ optionView address color =
         class "option"
       , onClick address guessCallback
       , style [
-          ("background-color", color),
-          ("border", "1px solid black"),
-          ("display", "inline-block"),
-          ("padding", "12px"),
-          ("width", "33%")
+          "background-color" => color
+        , "border" => "1px solid black"
+        , "display" => "inline-block"
+        , "padding" => "12px"
+        , "width" => "33%"
         ]
       ]
       []
@@ -110,7 +112,7 @@ view address model =
     scoreView' = scoreView model
     gameOverView' = gameOverView model
     debugView = div
-                  [style [("background-color", model.answer)]]
+                  [style ["background-color" => model.answer]]
                   [text ("debug: " ++ model.answer)]
   in
     if model.initialsSaved == False then
