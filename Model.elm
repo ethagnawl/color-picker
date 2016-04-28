@@ -1,6 +1,9 @@
-module Model(GameObject, initialGameObject) where
+module Model (GameState(Pre, In, Post), GameObject, initialGameObject) where
+
+type GameState = Pre | In | Post
 
 type alias GameObject = {
+  gameState: GameState,
   initials : String,
   initialsSaved : Bool,
   answer : String,
@@ -13,6 +16,7 @@ type alias GameObject = {
 
 initialGameObject : GameObject
 initialGameObject = {
+    gameState = Pre,
     initials = "",
     initialsSaved = False,
     answer = "rgb(0, 0, 0)",

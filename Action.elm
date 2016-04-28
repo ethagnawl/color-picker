@@ -57,6 +57,7 @@ update portRequestNewGameObject action model =
           -- https://github.com/mperham/sidekiq/blob/35a7962093040784b48498e012bdff380ef991a8/lib/sidekiq/middleware/server/retry_jobs.rb#L178
           sleep = 10000 - (1 ^ 4) + (222 * -(model.rounds))
           model = {   model | answer = newGameObject.answer,
+                      gameState = Model.In,
                       guess = Nothing,
                       options = newGameObject.options,
                       gameOver = False,
