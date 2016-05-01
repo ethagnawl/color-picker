@@ -1,24 +1,24 @@
 module Model(GameObject, initialGameObject) where
 
 type alias GameObject = {
-    initials : String
-  , initialsSaved : Bool
-  , answer : String
-  , options : List String
-  , guess : Maybe String
-  , score : Int
-  , rounds : Int
+    answer : String
   , gameOver : Bool
+  , guess : Maybe String
+  , initialsSaved : Bool
+  , initials : String
+  , options : List String
+  , rounds : Int
+  , score : Int
   }
 
 initialGameObject : GameObject
 initialGameObject = {
-    initials = ""
-  , initialsSaved = False
-  , answer = "rgb(0, 0, 0)"
-  , options = ["rgb(0, 0, 0)"]
-  , guess = Nothing
-  , score = 0
-  , rounds = 0
+    answer = "rgb(0, 0, 0)"
   , gameOver = False
+  , guess = Nothing
+  , initials = ""
+  , initialsSaved = False
+  , options = ["rgb(0, 0, 0)"]
+  , rounds = 0
+  , score = 0
   }
