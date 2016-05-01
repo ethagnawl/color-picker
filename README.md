@@ -1,6 +1,6 @@
 # ABOUT
 
-This is a contrived game (kudos to @timklimowicz for original idea) which was
+This is a contrived game (kudos to @timklimowicz for the idea) which was
 developed in order to provide a real-time source of data for my [Rails 5
 Action Cable
 demo](https://github.com/ethagnawl/rails-5-action-cable-elm-docker-demo). The
