@@ -38,10 +38,10 @@ update =
 
 app =
   StartApp.start {
-    init = (Model.initialGameObject, Effects.none),
-    view = view,
-    update = update,
-    inputs = [incomingGameObject]
+    init = (Model.initialGameObject, Effects.none)
+  , inputs = [incomingGameObject]
+  , update = update
+  , view = view
   }
 
 port tasks : Signal (Task.Task Never ())

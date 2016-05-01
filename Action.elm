@@ -8,10 +8,10 @@ import Task
 
 type Action =
     GameObjectReceived Model.GameObject
+  | GameOver Model.GameObject
   | GuessMade (Maybe String)
   | InitialsAdded String
   | InitialsSaved Bool
-  | GameOver Model.GameObject
   | Noop
 
 noFx model =
@@ -19,6 +19,22 @@ noFx model =
 
 update portRequestNewGameObject action model =
   case action of
+
+    GameObjectReceived newGameObject ->
+      let
+          -- Inspired by Sidekiq's incremental retry algo:
+          -- https://github.com/mperham/sidekiq/blob/35a7962093040784b48498e012bdff380ef991a8/lib/sidekiq/middleware/server/retry_jobs.rb#L178
+          sleep = 10000 - (1 ^ 4) + (222 * -(model.rounds))
+          model = {   model | answer = newGameObject.answer,
+                      guess = Nothing,
+                      options = newGameObject.options,
+                      gameOver = False,
+                      score = model.score }
+      in
+        (model,
+         Task.sleep sleep
+           |> Effects.task
+           |> Effects.map (always <| GameOver model))
 
     GameOver oldModel ->
       let
@@ -50,22 +66,6 @@ update portRequestNewGameObject action model =
         Nothing ->
           Debug.crash "This should never happen during a real game."
           (model, Effects.none)
-
-    GameObjectReceived newGameObject ->
-      let
-          -- Inspired by Sidekiq's incremental retry algo:
-          -- https://github.com/mperham/sidekiq/blob/35a7962093040784b48498e012bdff380ef991a8/lib/sidekiq/middleware/server/retry_jobs.rb#L178
-          sleep = 10000 - (1 ^ 4) + (222 * -(model.rounds))
-          model = {   model | answer = newGameObject.answer,
-                      guess = Nothing,
-                      options = newGameObject.options,
-                      gameOver = False,
-                      score = model.score }
-      in
-        (model,
-         Task.sleep sleep
-           |> Effects.task
-           |> Effects.map (always <| GameOver model))
 
     InitialsAdded newInitials ->
       noFx { model | initials = newInitials }
