@@ -18,4 +18,6 @@ to update a list of high scores in real-time.
   the gameObject because it prevents the options port from typechecking, since
   you can't send custom types over the wire. (using a custom json parser might
   solve this problem).
-- consider using different ports for different game actions - everything is currently tunneled over options
+- consider using different ports for different game actions - everything is
+  currently tunneled over options
+- don't render game board if game has ended - currently hidden
